@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.fabricmc.installer.client.ClientHandler;
-import net.fabricmc.installer.server.ServerHandler;
 import net.fabricmc.installer.util.ArgumentParser;
 import net.fabricmc.installer.util.CrashDialog;
 import net.fabricmc.installer.util.FabricService;
@@ -30,6 +29,12 @@ import net.fabricmc.installer.util.MetaHandler;
 import net.fabricmc.installer.util.OperatingSystem;
 
 public class Main {
+
+	public static final String PROFILE_NAME = "goofy-games-2";
+	public static final String MINECRAFT_VERSION = "1.20.1";
+	public static final LoaderVersion LOADER_VERSION = new LoaderVersion("0.14.22");
+	public final static String VOICE_MOD_DOWNLOAD_URL = "https://cdn.modrinth.com/data/9eGKb6K1/versions/wGI0D9fk/voicechat-fabric-1.20.1-2.4.24.jar";
+
 	public static MetaHandler GAME_VERSION_META;
 	public static MetaHandler LOADER_META;
 
@@ -44,7 +49,6 @@ public class Main {
 		System.out.println("Loading Fabric Installer: " + Main.class.getPackage().getImplementationVersion());
 
 		HANDLERS.add(new ClientHandler());
-		HANDLERS.add(new ServerHandler());
 
 		ArgumentParser argumentParser = ArgumentParser.create(args);
 		String command = argumentParser.getCommand().orElse(null);

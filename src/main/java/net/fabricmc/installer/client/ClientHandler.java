@@ -16,8 +16,7 @@
 
 package net.fabricmc.installer.client;
 
-import java.awt.Desktop;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,16 +25,13 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.JCheckBox;
-import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 
 import net.fabricmc.installer.Handler;
 import net.fabricmc.installer.InstallerGui;
 import net.fabricmc.installer.LoaderVersion;
+import net.fabricmc.installer.Main;
 import net.fabricmc.installer.launcher.MojangLauncherHelperWrapper;
 import net.fabricmc.installer.util.ArgumentParser;
 import net.fabricmc.installer.util.InstallerProgress;
@@ -43,8 +39,6 @@ import net.fabricmc.installer.util.Reference;
 import net.fabricmc.installer.util.Utils;
 
 public class ClientHandler extends Handler {
-	private JCheckBox createProfile;
-
 	@Override
 	public String name() {
 		return "Client";
@@ -61,9 +55,9 @@ public class ClientHandler extends Handler {
 	}
 
 	private void doInstall() {
-		String gameVersion = (String) gameVersionComboBox.getSelectedItem();
-		LoaderVersion loaderVersion = queryLoaderVersion();
-		if (loaderVersion == null) return;
+		String gameVersion = Main.MINECRAFT_VERSION;
+		LoaderVersion loaderVersion = Main.LOADER_VERSION;
+		;
 
 		System.out.println("Installing");
 
@@ -79,33 +73,29 @@ public class ClientHandler extends Handler {
 				final ProfileInstaller profileInstaller = new ProfileInstaller(mcPath);
 				ProfileInstaller.LauncherType launcherType = null;
 
-				if (createProfile.isSelected()) {
-					List<ProfileInstaller.LauncherType> types = profileInstaller.getInstalledLauncherTypes();
+				List<ProfileInstaller.LauncherType> types = profileInstaller.getInstalledLauncherTypes();
 
-					if (types.size() == 0) {
-						throw new RuntimeException(Utils.BUNDLE.getString("progress.exception.no.launcher.profile"));
-					} else if (types.size() == 1) {
-						launcherType = types.get(0);
-					} else {
-						launcherType = showLauncherTypeSelection();
+				if (types.size() == 0) {
+					throw new RuntimeException(Utils.BUNDLE.getString("progress.exception.no.launcher.profile"));
+				} else if (types.size() == 1) {
+					launcherType = types.get(0);
+				} else {
+					launcherType = showLauncherTypeSelection();
 
-						if (launcherType == null) {
-							// canceled
-							statusLabel.setText(Utils.BUNDLE.getString("prompt.ready.install"));
-							return;
-						}
+					if (launcherType == null) {
+						// canceled
+						statusLabel.setText(Utils.BUNDLE.getString("prompt.ready.install"));
+						return;
 					}
 				}
 
 				String profileName = ClientInstaller.install(mcPath, gameVersion, loaderVersion, this);
 
-				if (createProfile.isSelected()) {
-					if (launcherType == null) {
-						throw new RuntimeException(Utils.BUNDLE.getString("progress.exception.no.launcher.profile"));
-					}
-
-					profileInstaller.setupProfile(profileName, gameVersion, launcherType);
+				if (launcherType == null) {
+					throw new RuntimeException(Utils.BUNDLE.getString("progress.exception.no.launcher.profile"));
 				}
+
+				profileInstaller.setupProfile(profileName, gameVersion, launcherType);
 
 				SwingUtilities.invokeLater(() -> showInstalledMessage(loaderVersion.name, gameVersion));
 			} catch (Exception e) {
@@ -138,7 +128,7 @@ public class ClientHandler extends Handler {
 	}
 
 	private ProfileInstaller.LauncherType showLauncherTypeSelection() {
-		Object[] options = { Utils.BUNDLE.getString("prompt.launcher.type.xbox"), Utils.BUNDLE.getString("prompt.launcher.type.win32")};
+		Object[] options = {Utils.BUNDLE.getString("prompt.launcher.type.xbox"), Utils.BUNDLE.getString("prompt.launcher.type.win32")};
 
 		int result = JOptionPane.showOptionDialog(null,
 				Utils.BUNDLE.getString("prompt.launcher.type.body"),
@@ -148,7 +138,7 @@ public class ClientHandler extends Handler {
 				null,
 				options,
 				options[0]
-				);
+		);
 
 		if (result == JOptionPane.CLOSED_OPTION) {
 			return null;
@@ -213,9 +203,6 @@ public class ClientHandler extends Handler {
 
 	@Override
 	public void setupPane2(JPanel pane, GridBagConstraints c, InstallerGui installerGui) {
-		addRow(pane, c, null,
-				createProfile = new JCheckBox(Utils.BUNDLE.getString("option.create.profile"), true));
-
 		installLocation.setText(Utils.findDefaultInstallDir().toString());
 	}
 }

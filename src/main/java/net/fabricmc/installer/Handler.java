@@ -54,17 +54,11 @@ public abstract class Handler implements InstallerProgress {
 	protected static final int HORIZONTAL_SPACING = 4;
 	protected static final int VERTICAL_SPACING = 6;
 
-	private static final String SELECT_CUSTOM_ITEM = "(select custom)";
-
 	public JButton buttonInstall;
 
-	public JComboBox<String> gameVersionComboBox;
-	private JComboBox<String> loaderVersionComboBox;
 	public JTextField installLocation;
 	public JButton selectFolderButton;
 	public JLabel statusLabel;
-
-	public JCheckBox snapshotCheckBox;
 
 	private JPanel pane;
 
@@ -91,24 +85,6 @@ public abstract class Handler implements InstallerProgress {
 
 		setupPane1(pane, c, installerGui);
 
-		addRow(pane, c, "prompt.game.version",
-				gameVersionComboBox = new JComboBox<>(),
-				createSpacer(),
-				snapshotCheckBox = new JCheckBox(Utils.BUNDLE.getString("option.show.snapshots")));
-		snapshotCheckBox.setSelected(false);
-		snapshotCheckBox.addActionListener(e -> {
-			if (Main.GAME_VERSION_META.isComplete()) {
-				updateGameVersions();
-			}
-		});
-
-		Main.GAME_VERSION_META.onComplete(versions -> {
-			updateGameVersions();
-		});
-
-		addRow(pane, c, "prompt.loader.version",
-				loaderVersionComboBox = new JComboBox<>());
-
 		addRow(pane, c, "prompt.select.location",
 				installLocation = new JTextField(20),
 				selectFolderButton = new JButton());
@@ -134,72 +110,21 @@ public abstract class Handler implements InstallerProgress {
 
 			for (int i = 0; i < versions.size(); i++) {
 				MetaHandler.GameVersion version = versions.get(i);
-				loaderVersionComboBox.addItem(version.getVersion());
 
 				if (version.isStable()) {
 					stableIndex = i;
 				}
 			}
 
-			loaderVersionComboBox.addItem(SELECT_CUSTOM_ITEM);
-
 			//If no stable versions are found, default to the latest version
 			if (stableIndex == -1) {
 				stableIndex = 0;
 			}
 
-			loaderVersionComboBox.setSelectedIndex(stableIndex);
 			statusLabel.setText(Utils.BUNDLE.getString("prompt.ready.install"));
 		});
 
 		return pane;
-	}
-
-	private void updateGameVersions() {
-		gameVersionComboBox.removeAllItems();
-
-		for (MetaHandler.GameVersion version : Main.GAME_VERSION_META.getVersions()) {
-			if (!snapshotCheckBox.isSelected() && !version.isStable()) {
-				continue;
-			}
-
-			gameVersionComboBox.addItem(version.getVersion());
-		}
-
-		gameVersionComboBox.setSelectedIndex(0);
-
-		InstallerGui.instance.updateSize(false);
-	}
-
-	protected LoaderVersion queryLoaderVersion() {
-		String ret = (String) loaderVersionComboBox.getSelectedItem();
-
-		if (!ret.equals(SELECT_CUSTOM_ITEM)) {
-			return new LoaderVersion(ret);
-		} else {
-			// ask user for loader jar
-
-			JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(new File("."));
-			chooser.setDialogTitle("Select Fabric Loader JAR");
-			chooser.setFileFilter(new FileNameExtensionFilter("Java Archive", "jar"));
-			chooser.setAcceptAllFileFilterUsed(false);
-
-			if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-				return null;
-			}
-
-			File file = chooser.getSelectedFile();
-
-			// determine loader version from fabric.mod.json
-
-			try {
-				return new LoaderVersion(file.toPath());
-			} catch (IOException e) {
-				error(e);
-				return null;
-			}
-		}
 	}
 
 	@Override

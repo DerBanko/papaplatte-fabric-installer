@@ -8,7 +8,7 @@ plugins {
 	id "me.modmuss50.remotesign" version "0.1.0"
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 version = '0.11.2'
 archivesBaseName = "fabric-installer"
 
@@ -192,3 +192,5 @@ class FileOutput extends DefaultTask {
 	@OutputFile
 	File output
 }
+
+targetCompatibility = JavaVersion.VERSION_11

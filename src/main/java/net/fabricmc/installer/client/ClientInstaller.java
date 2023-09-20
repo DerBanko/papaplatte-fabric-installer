@@ -25,17 +25,20 @@ import java.text.MessageFormat;
 import mjson.Json;
 
 import net.fabricmc.installer.LoaderVersion;
+import net.fabricmc.installer.Main;
 import net.fabricmc.installer.util.FabricService;
 import net.fabricmc.installer.util.InstallerProgress;
 import net.fabricmc.installer.util.Library;
 import net.fabricmc.installer.util.Reference;
 import net.fabricmc.installer.util.Utils;
 
+import tv.banko.installer.VoiceModInstaller;
+
 public class ClientInstaller {
 	public static String install(Path mcDir, String gameVersion, LoaderVersion loaderVersion, InstallerProgress progress) throws IOException {
 		System.out.println("Installing " + gameVersion + " with fabric " + loaderVersion.name);
 
-		String profileName = String.format("%s-%s-%s", Reference.LOADER_NAME, loaderVersion.name, gameVersion);
+		String profileName = Main.PROFILE_NAME;
 
 		Path versionsDir = mcDir.resolve("versions");
 		Path profileDir = versionsDir.resolve(profileName);
@@ -75,6 +78,9 @@ public class ClientInstaller {
 			progress.updateProgress(new MessageFormat(Utils.BUNDLE.getString("progress.download.library.entry")).format(new Object[]{library.name}));
 			FabricService.downloadSubstitutedMaven(url, libraryFile);
 		}
+
+		progress.updateProgress(Utils.BUNDLE.getString("progress.download.voice-mod"));
+		VoiceModInstaller.install();
 
 		progress.updateProgress(Utils.BUNDLE.getString("progress.done"));
 
