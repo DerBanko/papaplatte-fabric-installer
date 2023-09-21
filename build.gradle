@@ -1,9 +1,7 @@
 plugins {
 	id 'java'
 	id 'maven-publish'
-	id "checkstyle"
 	id "com.github.johnrengelman.shadow" version "7.0.0"
-	id "org.cadixdev.licenser" version "0.6.1"
 	id "de.undercouch.download" version "4.1.2"
 	id "me.modmuss50.remotesign" version "0.1.0"
 }
@@ -45,11 +43,6 @@ tasks.withType(JavaCompile).configureEach {
 	if (JavaVersion.current().isJava9Compatible()) {
 		it.options.release = 8
 	}
-}
-
-checkstyle {
-	configFile = project.file("checkstyle.xml")
-	toolVersion = "8.45"
 }
 
 shadowJar {
@@ -131,11 +124,6 @@ if (ENV.SIGNING_SERVER) {
 	nativeExe.dependsOn signShadowJar
 }
 
-license {
-	header rootProject.file("HEADER")
-	include "**/*.java"
-}
-
 publishing {
 	publications {
 		maven(MavenPublication) {
@@ -173,20 +161,6 @@ publishing {
 		}
 	}
 }
-
-// A task to ensure that the version being released has not already been released.
-task checkVersion {
-	doFirst {
-		def xml = new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/maven-metadata.xml").text
-		def metadata = new XmlSlurper().parseText(xml)
-		def versions = metadata.versioning.versions.version*.text();
-		if (versions.contains(version)) {
-			throw new RuntimeException("${version} has already been released!")
-		}
-	}
-}
-
-publish.mustRunAfter checkVersion
 
 class FileOutput extends DefaultTask {
 	@OutputFile

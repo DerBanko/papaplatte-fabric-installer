@@ -30,7 +30,6 @@ import net.fabricmc.installer.util.OperatingSystem;
 
 public class Main {
 
-	public static final String PROFILE_NAME = "goofy-games-2";
 	public static final String MINECRAFT_VERSION = "1.20.1";
 	public static final LoaderVersion LOADER_VERSION = new LoaderVersion("0.14.22");
 	public final static String VOICE_MOD_DOWNLOAD_URL = "https://cdn.modrinth.com/data/9eGKb6K1/versions/wGI0D9fk/voicechat-fabric-1.20.1-2.4.24.jar";
